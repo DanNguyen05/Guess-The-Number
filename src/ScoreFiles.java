@@ -5,16 +5,33 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class ScoreFiles {
+    private final String basePath;
+
+    public ScoreFiles() {
+        basePath = System.getProperty("user.dir") + "/Guess-The-Number";
+    }
 
     // Show the 1st Line Score in a filename and returns a String
     public String showScore(String filename){
         String score = "0";
         try{
-            File text = new File(filename);
+            File text = new File(basePath, filename);
+            System.out.println("Reading score from: " + text.getAbsolutePath());
+            
+            if (!text.exists() || text.length() == 0) {
+                text.getParentFile().mkdirs();
+                FileWriter writer = new FileWriter(text);
+                writer.write("0\n0");
+                writer.close();
+            }
+            
             Scanner scan = new Scanner(text);
-            score = scan.nextLine();
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
+            if (scan.hasNextLine()) {
+                score = scan.nextLine();
+            }
+            scan.close();
+        } catch (Exception e) {
+            System.err.println("Error reading score file: " + filename);
             e.printStackTrace();
         }
         return score;
@@ -22,17 +39,25 @@ public class ScoreFiles {
 
     // Show the 2st Line Attempt in a filename and returns a String
     public String showGames(String filename){
-        String attempt = "0";
+        String games = "0";
         try{
-            File text = new File(filename);
+            File text = new File(basePath, filename);
             Scanner scan = new Scanner(text);
-            scan.nextLine();
-            attempt = scan.nextLine();
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
+            
+            // Skip first line (score)
+            if (scan.hasNextLine()) {
+                scan.nextLine();
+                // Read second line (games)
+                if (scan.hasNextLine()) {
+                    games = scan.nextLine();
+                }
+            }
+            scan.close();
+        } catch (Exception e) {
+            System.err.println("Error reading games from file: " + filename);
             e.printStackTrace();
         }
-        return attempt;
+        return games;
     }
 
     // Convert the showScore method to int
@@ -48,31 +73,31 @@ public class ScoreFiles {
     // Overwrites the text file
     // Used in current_score.txt and num_game.txt
     public void write(String filename, int score){
-        try{
-            FileWriter score_writer = new FileWriter(filename);
+        try {
+            File file = new File(basePath, filename);
+            file.getParentFile().mkdirs();
+            FileWriter score_writer = new FileWriter(file);
             score_writer.write(String.valueOf(score));
             score_writer.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
         } catch (IOException e) {
+            System.err.println("Error writing to file: " + filename);
             e.printStackTrace();
         }
     }
 
     // Overwrites the text file
     // Used in high_score.txt
-    public void writeScoreAttempts(String filename, int score, int attemtps){
-        try{
-            FileWriter score_writer = new FileWriter(filename);
+    public void writeScoreAttempts(String filename, int score, int attempts){
+        try {
+            File file = new File(basePath, filename);
+            file.getParentFile().mkdirs();
+            FileWriter score_writer = new FileWriter(file);
             score_writer.write(String.valueOf(score));
             score_writer.write("\n");
-            score_writer.write(String.valueOf(attemtps));
+            score_writer.write(String.valueOf(attempts));
             score_writer.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
         } catch (IOException e) {
+            System.err.println("Error writing to file: " + filename);
             e.printStackTrace();
         }
     }

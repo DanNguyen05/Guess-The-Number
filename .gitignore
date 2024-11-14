@@ -5,3 +5,28 @@ out/
 *.iml
 *.ipr
 *.iws
+
+# Compiled class files
+*.class
+bin/
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# Build files
+target/
+build/
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db

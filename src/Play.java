@@ -11,6 +11,7 @@ public class Play extends JPanel {
 
     // Declaring the Game class for changing the scene
     final private Game game;
+    private final String basePath;
 
     // Create an instance of RandomNumber class to generate a random number
     RandomNumber randomNumber = new RandomNumber();
@@ -23,6 +24,7 @@ public class Play extends JPanel {
 
     public Play(Game game){
         this.game = game;
+        this.basePath = System.getProperty("user.dir") + "/Guess-The-Number";
 
         // Layout to be used in this panel
         BoxLayout boxlayout = new BoxLayout(this, BoxLayout.Y_AXIS);
@@ -50,19 +52,21 @@ public class Play extends JPanel {
         add(playScore);
 
         // Setting up and Display the Game Text
-        gameText = new JLabel(new ImageIcon("res/guess_number_label.png"));
+        gameText = new JLabel(new ImageIcon(basePath + "/res/guess_number_label.png"));
         gameText.setBorder(new EmptyBorder(5,0,0,0));
         gameText.setAlignmentX(CENTER_ALIGNMENT);
         add(gameText);
 
         // Setting up and Display the Minimum and Maximum Number Label Image
-        minMaxImage = new JLabel(new ImageIcon("res/min_max.png"));
+        minMaxImage = new JLabel("Guess a number between 1 and 100");
+        minMaxImage.setFont(new Font("Arial", Font.BOLD, 16));
+        minMaxImage.setForeground(Color.WHITE);
         minMaxImage.setAlignmentX(CENTER_ALIGNMENT);
         add(minMaxImage);
 
         // Setting up and Display the Mystery Number
         mysteryNumber = new JLabel("?");
-        mysteryNumber.setIcon(new ImageIcon("res/mystery_square.png"));
+        mysteryNumber.setIcon(new ImageIcon(basePath + "/res/mystery_square.png"));
         mysteryNumber.setHorizontalTextPosition(JLabel.CENTER);
         mysteryNumber.setFont(new Font("Arial", Font.BOLD, 120));
         mysteryNumber.setForeground(new Color(62,59,80));
@@ -70,7 +74,7 @@ public class Play extends JPanel {
         add(mysteryNumber);
 
         // Setting up and Display the Status of the Inputted Text
-        statusImage = new JLabel(new ImageIcon("res/input_number.png"));
+        statusImage = new JLabel(new ImageIcon(basePath + "/res/input_number.png"));
         statusImage.setAlignmentX(CENTER_ALIGNMENT);
         statusImage.setBorder(BorderFactory.createEmptyBorder(-10, 0, 15, 0));
         add(statusImage);
@@ -92,7 +96,7 @@ public class Play extends JPanel {
         gridPanel.add(inputText);
 
         // Setting up and Display the Enter Button
-        enterButton = new JLabel(new ImageIcon("res/enter_button.png"));
+        enterButton = new JLabel(new ImageIcon(basePath + "/res/enter_button.png"));
         enterButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         gridPanel.add(enterButton);
 
@@ -100,7 +104,7 @@ public class Play extends JPanel {
         add(gridPanel);
 
         // Setting up the Continue Button without displaying
-        continueButton = new JLabel(new ImageIcon("res/continue_button.png"));
+        continueButton = new JLabel(new ImageIcon(basePath + "/res/continue_button.png"));
         continueButton.setAlignmentX(CENTER_ALIGNMENT);
         continueButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         continueButton.setVisible(false);
@@ -108,7 +112,7 @@ public class Play extends JPanel {
         add(continueButton);
 
         // Setting up and Display the Back to Menu Button
-        backButton = new JLabel(new ImageIcon("res/back_to_menu_button.png"));
+        backButton = new JLabel(new ImageIcon(basePath + "/res/back_to_menu_button.png"));
         backButton.setAlignmentX(CENTER_ALIGNMENT);
         backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         backButton.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
@@ -160,7 +164,7 @@ public class Play extends JPanel {
     // For changing the background of JPanel
     @Override
     protected void paintComponent(Graphics g) {
-        g.drawImage(new ImageIcon("res/background.jpg").getImage(), 0, 0, null);
+        g.drawImage(new ImageIcon(basePath + "/res/background.jpg").getImage(), 0, 0, null);
     }
 
     // Method for Changing the Status Image
@@ -168,7 +172,7 @@ public class Play extends JPanel {
         // If the random number and the user input is correct
         if (String.valueOf(randnum).equals(input.getText())) {
             // Change the image of status
-            status.setIcon(new ImageIcon("res/correct.png"));
+            status.setIcon(new ImageIcon(basePath + "/res/correct.png"));
             // Change the value of ? to the number
             mysterynum.setText(input.getText());
             // Hide the Panel with the enter button and text field
@@ -185,28 +189,38 @@ public class Play extends JPanel {
             // Set how many games played continuously
             scoreFiles.write("scores/num_game.txt", scoreFiles.intScore("scores/num_game.txt") + 1);
             // If the input is correct, play the sound effect for correct
-            sound_effect("res/correct.wav");
+            sound_effect("correct.wav");
+            
+            // Update player's score
+            Player currentPlayer = game.getCurrentPlayer();
+            int currentScore = scoreFiles.intScore("scores/current_score.txt");
+            int gamesPlayed = scoreFiles.intScore("scores/num_game.txt");
+            
+            // Cập nhật điểm cao
+            if (currentScore > currentPlayer.getHighScore()) {
+                game.getPlayerDB().updatePlayerScore(currentPlayer.getName(), currentScore);
+            }
         } else {
             // If the input is wrong, play the sound effect for wrong
-            sound_effect("res/wrong.wav");
+            sound_effect("wrong.wav");
             // Catch any possible error if the user didn't input a number
             try {
                 // Convert the user input number (string) to int
                 int textToInt = Integer.parseInt(input.getText());
                 // Comparing the user input to the random number
-                if(textToInt > 50 || textToInt < 1) {
-                    // If the user input higher than 50 and lower than 1, executed this block of code
-                    status.setIcon(new ImageIcon("res/out_of_range.png"));
+                if(textToInt > 100 || textToInt < 1) {
+                    // If the user input higher than 100 and lower than 1, executed this block of code
+                    status.setIcon(new ImageIcon(basePath + "/res/out_of_range.png"));
                 } else if (textToInt > randnum ){
                     // If the user input higher than random number, executed this block of code
-                    status.setIcon(new ImageIcon("res/too_high.png"));
+                    status.setIcon(new ImageIcon(basePath + "/res/too_high.png"));
                 } else if(textToInt < randnum){
                     // If the user input lower than random number, executed this block of code
-                    status.setIcon(new ImageIcon("res/too_low.png"));
+                    status.setIcon(new ImageIcon(basePath + "/res/too_low.png"));
                 }
             } catch (NumberFormatException ex) {
                 // Is user input anything aside from numbers, executed this block of code
-                status.setIcon(new ImageIcon("res/invalid_input.png"));
+                status.setIcon(new ImageIcon(basePath + "/res/invalid_input.png"));
             }
         }
         // Remove the Text in text field once the user call this method
@@ -219,16 +233,23 @@ public class Play extends JPanel {
     //// Method For Sound Effects Music
     public void sound_effect(String soundName) {
         try {
-            // Setting up the Audio for Background Music
-            AudioInputStream audioInputStream2 = AudioSystem.getAudioInputStream(new File(soundName));
-            Clip clip2 = AudioSystem.getClip();
-            clip2.open(audioInputStream2);
-            // Adjust Sound
-            FloatControl gainControl =  (FloatControl) clip2.getControl(FloatControl.Type.MASTER_GAIN);
+            // Sửa đường dẫn file âm thanh - thêm /res/ vào trước
+            File soundFile = new File(basePath + "/res/" + soundName);
+            System.out.println("Loading sound from: " + soundFile.getAbsolutePath());
+            
+            if (!soundFile.exists()) {
+                System.err.println("Sound file not found at: " + soundFile.getAbsolutePath());
+                return;
+            }
+
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
             gainControl.setValue(-20.0f);
-            // Start the Audio
-            clip2.start();
-        } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
+            clip.start();
+        } catch (Exception e) {
+            System.err.println("Error playing sound: " + soundName);
             e.printStackTrace();
         }
     }
